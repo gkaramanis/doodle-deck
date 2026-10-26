@@ -177,9 +177,18 @@ buildControls();
 document.getElementById( 'redraw' ).addEventListener( 'click', () => restart() );
 document.getElementById( 'copy' ).addEventListener( 'click', copyConfig );
 document.getElementById( 'reset' ).addEventListener( 'click', resetSettings );
-showButton.addEventListener( 'click', togglePanel );
-document.addEventListener( 'keydown', e =>
+
+// In an iframe the settings sit below the Deck, so they stay shown, and the iframe grows to
+// fit them. Full screen, they float over the Deck and H hides them.
+if ( window.frameElement )
+    new ResizeObserver( () => window.frameElement.style.height = document.documentElement.scrollHeight + 'px' )
+        .observe( document.body );
+if ( window.self === window.top )
 {
-    if ( ( e.key === 'h' || e.key === 'H' ) && e.target.tagName !== 'TEXTAREA' )
-        togglePanel();
-} );
+    showButton.addEventListener( 'click', togglePanel );
+    document.addEventListener( 'keydown', e =>
+    {
+        if ( ( e.key === 'h' || e.key === 'H' ) && e.target.tagName !== 'TEXTAREA' )
+            togglePanel();
+    } );
+}

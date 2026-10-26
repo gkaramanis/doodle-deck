@@ -420,11 +420,16 @@ function restart(viewName)
     phaseStart = performance.now();
 }
 
+// Starts a new Deck only when the canvas changes size, since a resize event can leave it as
+// it was.
 function resize()
 {
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round( canvas.clientWidth * dpr );
-    canvas.height = Math.round( canvas.clientHeight * dpr );
+    const width = Math.round( canvas.clientWidth * dpr ), height = Math.round( canvas.clientHeight * dpr );
+    if ( width === canvas.width && height === canvas.height )
+        return;
+    canvas.width = width;
+    canvas.height = height;
     restart();
 }
 

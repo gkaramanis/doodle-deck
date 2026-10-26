@@ -216,7 +216,51 @@
                 max-height: 55%;
             }
         }
+
+        /* In an iframe, as on the blog: the Deck on top at 16:10 and the settings below it. */
+        .embed, .embed body {
+            height: auto;
+            overflow: visible;
+        }
+
+        .embed canvas {
+            height: auto;
+            aspect-ratio: 16 / 10;
+        }
+
+        .embed #panel {
+            position: static;
+            width: auto;
+            max-height: none;
+            border: 0;
+            border-top: 1px solid var(--line);
+            border-radius: 0;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .embed #controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            column-gap: 24px;
+        }
+
+        .embed .views {
+            grid-column: 1 / -1;
+        }
+
+        .embed .buttons {
+            max-width: 360px;
+        }
+
+        .embed .hint {
+            display: none;
+        }
     </style>
+    <script>
+        if ( window.self !== window.top )
+            document.documentElement.classList.add( 'embed' );
+    </script>
     <script src="src/config.js" defer></script>
     <script src="src/main.js" defer></script>
     <script src="demo.js" defer></script>
