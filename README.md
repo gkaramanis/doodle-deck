@@ -1,32 +1,20 @@
 # Doodle Deck
 
-A Steam screensaver that draws the Steam Deck in wobbly outlines that look hand-drawn. Each Deck is drawn stroke by stroke in a random order, held while its lines boil, then wiped and drawn again at a new place, size and angle, so nothing stays put long enough to burn in.
-
-Steam loads custom screensavers from folders under `~/.steam/root/config/uioverrides/screensavers/`. The folder name must be lowercase, or Steam fails to load it with error -105.
+A screensaver for Steam that sketches the Steam Deck in wobbly, chalky lines. Each Deck appears line by line, wiggles for a while, fades out and is drawn again somewhere else on the screen, from the front, the back or the top.
 
 ## Install on a Steam Deck
 
-Copy the `src` folder into the screensavers folder as `doodledeck`, then pick it under Settings → Customization → Screensaver. Over ssh:
+1. Switch to Desktop Mode and download **[DoodleDeck.zip](https://github.com/gkaramanis/doodle-deck/releases/latest/download/DoodleDeck.zip)**.
+2. Open your home folder in the file manager and press Ctrl+H to show hidden folders.
+3. Go to `.steam/root/config/uioverrides/screensavers` (create the `screensavers` folder if it isn't there) and extract the zip into it. You should end up with a `doodledeck` folder.
+4. Go back to Gaming Mode and pick **doodledeck** under Settings → Customization → Screensaver.
 
-```sh
-ssh deck@<host> mkdir -p .steam/root/config/uioverrides/screensavers
-scp -r src deck@<host>:.steam/root/config/uioverrides/screensavers/doodledeck
-```
+## Make it yours
 
-## Options
+Open `config.js` in the `doodledeck` folder with any text editor. You can change the line colour, background, how much the lines wobble, how thick they are, how long each drawing stays, and which views are drawn. Pick the screensaver again for the changes to show.
 
-Edit `config.js` on the Deck to set the line colour, background, wobble, boil rate, line width and the draw, hold and wipe times.
-
-## Preview
-
-Open `demo.html` in a browser to try the options with sliders and copy the result as a `config.js`. It runs the screensaver's own `src/main.js`.
-
-Or open `src/index.html`. Query parameters override `config.js`, so `index.html?wobble=2&boilRate=6&holdSeconds=3` shows a heavier, slower boil on a short loop.
-
-## Views
-
-The front, back and top are built in `src/main.js` from simple shapes (rounded rectangles, circles and smoothed curves), with positions and sizes measured from Valve's reference drawing. Pick any mix with `views` in `config.js`. Views come in a random order, never the same one twice in a row.
+Want to try settings first? Download this repo and open `demo.html` in a browser. Move the sliders, then press **Copy config.js** and paste the result into the file on your Deck.
 
 ## Credit
 
-The views' measurements come from the [Steam Deck CAD files](https://gitlab.steamos.cloud/SteamHardware/SteamDeck) by Valve Corporation, under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). This project shares them under the same licence and isn't made or endorsed by Valve.
+The Deck's proportions come from Valve's [Steam Deck CAD files](https://gitlab.steamos.cloud/SteamHardware/SteamDeck), shared under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Doodle Deck uses the same licence and isn't made or endorsed by Valve.
