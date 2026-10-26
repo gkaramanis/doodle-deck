@@ -14,7 +14,7 @@ const DOODLE_CONFIG = {
 
     // Seconds to draw a Deck, to hold it, and to wipe it before the next one.
     drawSeconds: 6,
-    holdSeconds: 20,
+    holdSeconds: 10,
     wipeSeconds: 1.5,
 
     // Line width in pixels on a 800-pixel-tall screen. It scales with the screen height.

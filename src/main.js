@@ -12,7 +12,7 @@ const DEFAULTS = {
     wobble: 1,
     boilRate: 10,
     drawSeconds: 6,
-    holdSeconds: 20,
+    holdSeconds: 10,
     wipeSeconds: 1.5,
     lineWidth: 2.5,
     views: [ 'front', 'back', 'top' ],
