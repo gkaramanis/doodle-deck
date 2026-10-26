@@ -9,6 +9,17 @@ A screensaver for Steam that sketches the Steam Deck in wobbly, chalky lines. Ea
 3. Go to `.steam/root/config/uioverrides/screensavers` (create the `screensavers` folder if it isn't there) and extract the zip into it. You should end up with a `doodledeck` folder.
 4. Go back to Gaming Mode and pick **doodledeck** under Settings → Customization → Screensaver.
 
+### Or from your computer over ssh
+
+If ssh is already set up on your Deck, download and unzip **DoodleDeck.zip** on your computer, then run this from the folder you unzipped it in, using your Deck's address in place of `steamdeck.local` if it differs:
+
+```sh
+ssh deck@steamdeck.local mkdir -p .steam/root/config/uioverrides/screensavers
+scp -r doodledeck deck@steamdeck.local:.steam/root/config/uioverrides/screensavers/
+```
+
+Then pick **doodledeck** in Gaming Mode as in step 4.
+
 ## Make it yours
 
 Open `config.js` in the `doodledeck` folder with any text editor. You can change the line colour, background, how much the lines wobble, how thick they are, how long each drawing stays, and which views are drawn. Pick the screensaver again for the changes to show.
