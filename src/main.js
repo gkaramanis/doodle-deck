@@ -284,7 +284,7 @@ function centred(shapes)
 // Plain point lists are closed loops; open strokes come from smoothLine.
 const loops = shapes => shapes.map( s => Array.isArray( s ) ? { pts: s, closed: true } : s );
 
-// Each view's shapes in drawing order.
+// Each view's shapes. They are drawn in a new random order for every Deck.
 const VIEWS = {
     front: centred( loops( frontView() ) ),
     back: centred( loops( backView() ) ),
@@ -314,6 +314,18 @@ function closedStroke(shape, style)
     return { pts, length: pts.length * STEP };
 }
 
+// Fisher-Yates shuffle of a copy.
+function shuffled(items)
+{
+    const out = items.slice();
+    for ( let i = out.length - 1; i > 0; i-- )
+    {
+        const j = Math.floor( Math.random() * ( i + 1 ) );
+        [ out[i], out[j] ] = [ out[j], out[i] ];
+    }
+    return out;
+}
+
 function openStroke(line)
 {
     const pts = resample( line, false );
@@ -335,7 +347,7 @@ function newDrawing(width, height, viewName)
     const halfW = ( w * Math.abs( Math.cos( angle ) ) + h * Math.abs( Math.sin( angle ) ) ) * fit / 2;
     const halfH = ( w * Math.abs( Math.sin( angle ) ) + h * Math.abs( Math.cos( angle ) ) ) * fit / 2;
 
-    const strokes = view.shapes.map( s => s.closed ? closedStroke( s.pts, loopStyle() ) : openStroke( s.pts ) );
+    const strokes = shuffled( view.shapes ).map( s => s.closed ? closedStroke( s.pts, loopStyle() ) : openStroke( s.pts ) );
 
     return {
         view: viewName,
