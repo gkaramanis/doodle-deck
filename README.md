@@ -2,6 +2,8 @@
 
 A screensaver for Steam that sketches the Steam Deck in wobbly, chalky lines. Each Deck appears line by line, wiggles for a while, fades out and is drawn again somewhere else on the screen, from the front, the back or the top.
 
+![Doodle Deck drawing the front of a Steam Deck in wobbly white lines on black](docs/doodle-deck-front.gif)
+
 ## Install on a Steam Deck
 
 1. Switch to Desktop Mode and download **[DoodleDeck.zip](https://github.com/gkaramanis/doodle-deck/releases/latest/download/DoodleDeck.zip)**.
