@@ -1,6 +1,6 @@
 # Doodle Deck
 
-A Steam screensaver that draws the Steam Deck in wobbly hand-drawn outlines. Each Deck is drawn stroke by stroke in a random order, held while its lines boil, then wiped and drawn again at a new place, size and angle, so nothing stays put long enough to burn in.
+A Steam screensaver that draws the Steam Deck in wobbly outlines that look hand-drawn. Each Deck is drawn stroke by stroke in a random order, held while its lines boil, then wiped and drawn again at a new place, size and angle, so nothing stays put long enough to burn in.
 
 Steam loads custom screensavers from folders under `~/.steam/root/config/uioverrides/screensavers/`. The folder name must be lowercase, or Steam fails to load it with error -105.
 
@@ -25,7 +25,7 @@ Or open `src/index.html`. Query parameters override `config.js`, so `index.html?
 
 ## Views
 
-The front, back and top are drawn by hand in `src/main.js`, with positions and sizes measured from Valve's reference drawing. Pick any mix with `views` in `config.js`. Views come in a random order, never the same one twice in a row.
+The front, back and top are built in `src/main.js` from simple shapes (rounded rectangles, circles and smoothed curves), with positions and sizes measured from Valve's reference drawing. Pick any mix with `views` in `config.js`. Views come in a random order, never the same one twice in a row.
 
 ## Credit
 
