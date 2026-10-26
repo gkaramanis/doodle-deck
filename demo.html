@@ -239,14 +239,32 @@
             -webkit-backdrop-filter: none;
         }
 
+        /* Colours and views on the first row, then the six sliders in two rows of three. */
         .embed #controls {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             column-gap: 24px;
         }
 
+        .embed .row:has(input[type=color]),
         .embed .views {
-            grid-column: 1 / -1;
+            order: -1;
+        }
+
+        .embed .views {
+            margin-top: 10px;
+            align-self: center;
+        }
+
+        /* On a phone: colours, then views, then the sliders in pairs. */
+        @media (max-width: 520px) {
+            .embed #controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .embed .views {
+                grid-column: 1 / -1;
+            }
         }
 
         .embed .buttons {
