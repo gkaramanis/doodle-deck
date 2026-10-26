@@ -1,10 +1,10 @@
-// Hand-drawn Steam Deck outlines for Steam. The shapes are in millimetres, centred on the
-// Deck with y pointing down. Each boil frame redraws every stroke with new low-frequency
+// Steam Deck outlines for Steam, built from simple shapes. The shapes are in millimetres,
+// centred on the Deck with y pointing down. Each boil frame redraws every stroke with new low-frequency
 // wobble, which gives the line-boil look of hand-drawn animation.
 
 const FPS = 30;
 const STEP = 1;
-const DECK_SIZE = { w: 298, h: 125 };   // the front view, which sets the scale for every view
+const PEN_LIFT = 12;    // millimetres of pen travel between strokes
 
 const DEFAULTS = {
     lineColor: '#f2efe6',
@@ -40,12 +40,18 @@ function readConfig()
     cfg.holdSeconds = Math.max( 0, Number( cfg.holdSeconds ) || 0 );
     cfg.wipeSeconds = Math.max( 0.2, Number( cfg.wipeSeconds ) || DEFAULTS.wipeSeconds );
     cfg.lineWidth = clamp( Number( cfg.lineWidth ) || DEFAULTS.lineWidth, 0.5, 12 );
+
+    // The canvas ignores an invalid colour, which would leave black lines on black.
+    for ( const key of [ 'lineColor', 'background' ] )
+        if ( !CSS.supports( 'color', cfg[key] ) )
+            cfg[key] = DEFAULTS[key];
     return cfg;
 }
 
 // Geometry
 
-// Respaces a polyline so its points sit STEP millimetres apart.
+// Respaces a polyline so its points sit STEP millimetres apart. An open line keeps its end
+// point; a closed one doesn't repeat its start.
 function resample(points, closed)
 {
     const src = closed ? points.concat( [ points[0] ] ) : points;
@@ -64,17 +70,20 @@ function resample(points, closed)
         }
         carry = len - ( d - STEP );
     }
-    if ( closed )
+    if ( closed && carry < STEP / 2 )
         out.pop();
+    else if ( !closed && carry > STEP / 4 )
+        out.push( src[src.length - 1] );
     return out;
 }
 
+// Shapes come as outline points; strokes respace them when a Deck is drawn.
+
 function circle(cx, cy, r)
 {
-    const n = Math.max( 12, Math.ceil( 2 * Math.PI * r / STEP ) );
-    return Array.from( { length: n }, ( _, i ) =>
+    return Array.from( { length: 64 }, ( _, i ) =>
     {
-        const a = -Math.PI / 2 + i / n * 2 * Math.PI;
+        const a = -Math.PI / 2 + i / 64 * 2 * Math.PI;
         return [ cx + r * Math.cos( a ), cy + r * Math.sin( a ) ];
     } );
 }
@@ -93,7 +102,7 @@ function roundedRect(cx, cy, w, h, r)
             pts.push( [ ox + r * Math.cos( a ), oy + r * Math.sin( a ) ] );
         }
     }
-    return resample( pts, true );
+    return pts;
 }
 
 // Catmull-Rom curves through control points, closed or open.
@@ -115,14 +124,14 @@ function catmullRom(ctrl, closed)
     }
     if ( !closed )
         pts.push( ctrl[n - 1] );
-    return resample( pts, closed );
+    return pts;
 }
 
 const smoothLoop = ctrl => catmullRom( ctrl, true );
 
-// An open stroke, which the hand-drawn views mark so it isn't closed into a loop.
+// Open strokes, marked so they aren't closed into loops.
 const smoothLine = ctrl => ( { pts: catmullRom( ctrl, false ), closed: false } );
-const straightLine = corners => ( { pts: resample( corners, false ).concat( [ corners[corners.length - 1] ] ), closed: false } );
+const straightLine = corners => ( { pts: corners, closed: false } );
 
 const mirror = pts => pts.map( ( [ x, y ] ) => [ -x, y ] );
 
@@ -133,7 +142,7 @@ function dpad(cx, cy, arm, half)
         [ -a, -half ], [ a, -half ], [ a, -a ], [ half, -a ], [ half, a ], [ a, a ],
         [ a, half ], [ -a, half ], [ -a, a ], [ -half, a ], [ -half, -a ], [ -a, -a ],
     ];
-    return resample( corners.map( ( [ x, y ] ) => [ cx + x, cy + y ] ), true );
+    return corners.map( ( [ x, y ] ) => [ cx + x, cy + y ] );
 }
 
 // The outline seen from the front or the back, measured from Valve's drawing: tight top
@@ -267,10 +276,11 @@ function topView()
     return shapes;
 }
 
-// Centres a view's shapes on their bounding box and records its size. Each shape is
-// { pts, closed }.
+// Centres a view's shapes on their bounding box and records its size. A plain point list
+// is a closed loop.
 function centred(shapes)
 {
+    shapes = shapes.map( s => Array.isArray( s ) ? { pts: s, closed: true } : s );
     const pts = shapes.flatMap( s => s.pts );
     const xs = pts.map( p => p[0] ), ys = pts.map( p => p[1] );
     const x0 = Math.min( ...xs ), x1 = Math.max( ...xs ), y0 = Math.min( ...ys ), y1 = Math.max( ...ys );
@@ -281,14 +291,11 @@ function centred(shapes)
     };
 }
 
-// Plain point lists are closed loops; open strokes come from smoothLine.
-const loops = shapes => shapes.map( s => Array.isArray( s ) ? { pts: s, closed: true } : s );
-
 // Each view's shapes. They are drawn in a new random order for every Deck.
 const VIEWS = {
-    front: centred( loops( frontView() ) ),
-    back: centred( loops( backView() ) ),
-    top: centred( loops( topView() ) ),
+    front: centred( frontView() ),
+    back: centred( backView() ),
+    top: centred( topView() ),
 };
 
 // Drawings
@@ -296,22 +303,19 @@ const VIEWS = {
 // Picks the next view from the configured ones, never the same twice in a row.
 function nextView(previous)
 {
-    const names = cfg.views.filter( v => v in VIEWS );
+    const names = cfg.views.filter( v => Object.hasOwn( VIEWS, v ) );
     const pool = names.length > 1 ? names.filter( v => v !== previous ) : names;
     return pool.length ? pool[Math.floor( Math.random() * pool.length )] : 'front';
 }
 
 // Each loop starts at a random point and runs a little past its start, the way a hand
 // closes a shape.
-const loopStyle = () => ( { start: Math.random(), over: rand( 0.03, 0.12 ) } );
-
-function closedStroke(shape, style)
+function closedStroke(shape)
 {
-    const loop0 = resample( shape, true );
-    const start = Math.floor( style.start * loop0.length );
-    const loop = loop0.slice( start ).concat( loop0.slice( 0, start ) );
-    const pts = loop.concat( loop.slice( 0, Math.ceil( loop.length * style.over ) + 1 ) );
-    return { pts, length: pts.length * STEP };
+    const loop = resample( shape, true );
+    const start = Math.floor( Math.random() * loop.length );
+    const turned = loop.slice( start ).concat( loop.slice( 0, start ) );
+    return turned.concat( turned.slice( 0, Math.ceil( turned.length * rand( 0.03, 0.12 ) ) + 1 ) );
 }
 
 // Fisher-Yates shuffle of a copy.
@@ -326,28 +330,27 @@ function shuffled(items)
     return out;
 }
 
-function openStroke(line)
-{
-    const pts = resample( line, false );
-    const last = line[line.length - 1];
-    if ( Math.hypot( last[0] - pts[pts.length - 1][0], last[1] - pts[pts.length - 1][1] ) > STEP / 4 )
-        pts.push( last );
-    return { pts, length: pts.length * STEP };
-}
-
-// One Deck on screen. The scale comes from the whole Deck, so every view is drawn at the
-// same size.
+// One Deck on screen. The scale comes from the front view, so every view is drawn at the
+// same size. Each stroke starts where the pen has travelled through the ones before it.
 function newDrawing(width, height, viewName)
 {
     const view = VIEWS[viewName];
     const { w, h } = view.size;
-    const fit = Math.min( width * rand( 0.45, 0.68 ) / DECK_SIZE.w, height * 0.72 / DECK_SIZE.h,
+    const deck = VIEWS.front.size;
+    const fit = Math.min( width * rand( 0.45, 0.68 ) / deck.w, height * 0.72 / deck.h,
         width * 0.9 / w, height * 0.9 / h );
     const angle = rand( -7, 7 ) * Math.PI / 180;
     const halfW = ( w * Math.abs( Math.cos( angle ) ) + h * Math.abs( Math.sin( angle ) ) ) * fit / 2;
     const halfH = ( w * Math.abs( Math.sin( angle ) ) + h * Math.abs( Math.cos( angle ) ) ) * fit / 2;
 
-    const strokes = shuffled( view.shapes ).map( s => s.closed ? closedStroke( s.pts, loopStyle() ) : openStroke( s.pts ) );
+    let travel = 0;
+    const strokes = shuffled( view.shapes ).map( s =>
+    {
+        const pts = s.closed ? closedStroke( s.pts ) : resample( s.pts, false );
+        const stroke = { pts, length: pts.length * STEP, start: travel };
+        travel += stroke.length + PEN_LIFT;
+        return stroke;
+    } );
 
     return {
         view: viewName,
@@ -356,7 +359,7 @@ function newDrawing(width, height, viewName)
         angle,
         x: rand( halfW * 1.05, Math.max( halfW * 1.05, width - halfW * 1.05 ) ),
         y: rand( halfH * 1.05, Math.max( halfH * 1.05, height - halfH * 1.05 ) ),
-        total: strokes.reduce( ( sum, s ) => sum + s.length + 12, 0 ),
+        total: travel,
     };
 }
 
@@ -411,7 +414,7 @@ let lastFrame = 0;
 // Starts a new Deck from the beginning of the cycle, in the given view or the next one.
 function restart(viewName)
 {
-    viewName = viewName in VIEWS ? viewName : nextView( drawing && drawing.view );
+    viewName = Object.hasOwn( VIEWS, viewName ) ? viewName : nextView( drawing?.view );
     drawing = newDrawing( canvas.width, canvas.height, viewName );
     boilIndex = -1;
     phaseStart = performance.now();
@@ -443,11 +446,9 @@ function render(reach, alpha)
     ctx.scale( drawing.scale, drawing.scale );
     const baseWidth = cfg.lineWidth * canvas.height / 800 / drawing.scale;
 
-    let travelled = 0;
     drawing.strokes.forEach( ( stroke, i ) =>
     {
-        const shown = Math.floor( clamp( ( reach - travelled ) / STEP, 0, stroke.pts.length ) );
-        travelled += stroke.length + 12;
+        const shown = Math.floor( clamp( ( reach - stroke.start ) / STEP, 0, stroke.pts.length ) );
         if ( shown < 2 )
             return;
 
