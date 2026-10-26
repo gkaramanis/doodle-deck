@@ -1,6 +1,6 @@
 # Doodle Deck
 
-A screensaver for Steam that sketches the Steam Deck in wobbly, chalky lines. Each Deck appears line by line, wiggles for a while, fades out and is drawn again somewhere else on the screen, from the front, the back or the top.
+A screensaver for Steam that sketches the Steam Deck in wobbly, chalky lines. Each Deck appears line by line, wiggles for a while, fades out and is drawn again somewhere else on the screen, from the front, the back or the top. More in the [blog post](https://karaman.is/blog/2026/10/doodle-deck).
 
 ![Doodle Deck drawing the front of a Steam Deck in wobbly white lines on black](docs/doodle-deck-front.gif)
 
@@ -26,7 +26,7 @@ Then pick **doodledeck** in Gaming Mode as in step 4.
 
 Open `config.js` in the `doodledeck` folder with any text editor. You can change the line colour, background, how much the lines wobble, how thick they are, how long each drawing stays, and which views are drawn. Pick the screensaver again for the changes to show.
 
-Want to try settings first? Download this repo and open `demo.html` in a browser. Move the sliders, then press **Copy config.js** and paste the result into the file on your Deck.
+Want to try settings first? Open the [demo](https://karaman.is/doodle-deck-demo) in a browser, or download this repo and open `demo.html`. Move the sliders, then press **Copy config.js** and paste the result into the file on your Deck.
 
 ## Credit
 

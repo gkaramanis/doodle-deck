@@ -136,21 +136,22 @@ const DOODLE_CONFIG = {
 `;
 }
 
-// The clipboard API needs a secure context, which a file:// page may not be. The text is
-// also shown in the panel so it can be copied by hand.
+// The clipboard API needs a secure context, which a file:// page may not be. When it fails,
+// the text is shown in the panel so it can be copied by hand.
 async function copyConfig()
 {
     const text = configText();
-    output.value = text;
-    output.style.display = 'block';
     const button = document.getElementById( 'copy' );
     try
     {
         await navigator.clipboard.writeText( text );
+        output.style.display = 'none';
         button.textContent = 'Copied';
     }
     catch
     {
+        output.value = text;
+        output.style.display = 'block';
         output.select();
         button.textContent = 'Select and copy';
     }
