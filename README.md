@@ -1,6 +1,6 @@
 # Doodle Deck
 
-A Steam screensaver that draws the Steam Deck in wobbly hand-drawn outlines. Each Deck is drawn stroke by stroke, held while its lines boil, then wiped and drawn again at a new place, size and angle, so nothing stays put long enough to burn in.
+A Steam screensaver that draws the Steam Deck in wobbly hand-drawn outlines. Each Deck is drawn stroke by stroke in a random order, held while its lines boil, then wiped and drawn again at a new place, size and angle, so nothing stays put long enough to burn in.
 
 Steam loads custom screensavers from folders under `~/.steam/root/config/uioverrides/screensavers/`. This one is `doodledeck`. The folder name must stay lowercase, for the reason given in `build.sh`.
 
@@ -24,7 +24,7 @@ Or open `src/index.html`. Query parameters override `config.js`, so `index.html?
 
 ## Views
 
-The front, back and top are drawn by hand in `src/main.js`, with positions and sizes measured from Valve's reference drawing. Pick any mix with `views` in `config.js`.
+The front, back and top are drawn by hand in `src/main.js`, with positions and sizes measured from Valve's reference drawing. Pick any mix with `views` in `config.js`. Views come in a random order, never the same one twice in a row.
 
 `tools/extract_cad.py` turns Valve's drawing into `tools/ghost.js`, the outlines the measurements were taken from. Neither the screensaver nor the demo loads it. To regenerate it, download `steamdeck_2d_20220202.pdf` from Valve's repo and run:
 
